@@ -22,9 +22,60 @@ public class JobLogger {
   private static Map dbParams;
   private static Logger logger;
 
-  public JobLogger(boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
+  public static class Builder {
+    private static boolean logToFile = false;
+    private static boolean logToConsole = false;
+    private static boolean logMessage = false;
+    private static boolean logWarning = false;
+    private static boolean logError = false;
+    private static boolean logToDatabase = false;
+    private static Map dbParams;
+    private static Logger logger;
+
+    public Builder() {
+      this.logger = Logger.getLogger("MyLog");
+    }
+
+    public Builder withLogToFile() {
+      this.logToFile = true;
+      return this;
+    }
+
+    public Builder withLogToConsole() {
+      this.logToConsole = true;
+      return this;
+    }
+
+    public Builder withLogMessage() {
+      this.logMessage = true;
+      return this;
+    }
+
+    public Builder withLogWarning() {
+      this.logWarning = true;
+      return this;
+    }
+
+    public Builder withLogError() {
+      this.logError = true;
+      return this;
+    }
+
+    public Builder withLogToDatabase(final Map dbParams) {
+      this.logToDatabase = true;
+      this.dbParams = dbParams;
+      return this;
+    }
+
+    public JobLogger build(){
+      return new JobLogger(logger, logToFileParam, logToConsoleParam, logToDatabaseParam,
+              logMessageParam, logWarningParam, logErrorParam, dbParamsMap);
+    }
+  }
+
+  public JobLogger(Logger logger, boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
       boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
-    logger = Logger.getLogger("MyLog");
+    logger = logger;
     logError = logErrorParam;
     logMessage = logMessageParam;
     logWarning = logWarningParam;
