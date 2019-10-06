@@ -83,6 +83,11 @@ public class JobLogger {
     logToFile = logToFileParam;
     logToConsole = logToConsoleParam;
     dbParams = dbParamsMap;
+
+    if (!this.logToConsole && !this.logToFile && !this.logToDatabase ||
+            !this.logError && !this.logMessage && !this.logWarning) {
+      throw new Exception("Invalid configuration or you must specify the log level EJ: Error, Warning or Message");
+    }
   }
 
   public static void LogMessage(String messageText, boolean message, boolean warning, boolean error) throws Exception {
