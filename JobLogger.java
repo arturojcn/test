@@ -91,14 +91,12 @@ public class JobLogger {
   }
 
   public static void LogMessage(String messageText, boolean message, boolean warning, boolean error) throws Exception {
-    messageText.trim();
-    if (messageText == null || messageText.length() == 0) {
+
+    if (messageText == null || messageText.trim().isEmpty()) {
       return;
     }
-    if (!logToConsole && !logToFile && !logToDatabase) {
-      throw new Exception("Invalid configuration");
-    }
-    if ((!logError && !logMessage && !logWarning) || (!message && !warning && !error)) {
+
+    if (!message && !warning && !error) {
       throw new Exception("Error or Warning or Message must be specified");
     }
 
