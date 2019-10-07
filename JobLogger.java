@@ -115,33 +115,44 @@ public class JobLogger {
       logMsg = String.format("%s warning %s", logMsg, baseMsg);
     }
 
-    File logFile = new File(this.dbParams.get("logFileFolder") + "/logFile.txt");
-    if (!logFile.exists()) {
-      logFile.createNewFile();
-    }
-
-    FileHandler fh = new FileHandler(this.dbParams.get("logFileFolder") + "/logFile.txt");
-    ConsoleHandler ch = new ConsoleHandler();
-
     if (logToFile) {
-      logger.addHandler(fh);
-      logger.log(Level.INFO, messageText);
+      this.logFile(messageText);
     }
 
     if (logToConsole) {
-      logger.addHandler(ch);
-      logger.log(Level.INFO, messageText);
+      this.logConsole(messageText);
     }
 
     if (logToDatabase) {
-      LogDBProvider logDBProvider = new LogDBProvider(dbParamsMap);
+      this.logDB(String logMsg, int logType);
+    }
+  }
 
-      try {
-        logDBProvider.getConnection();
-        logDBProvider.insertLog(logMsg, logType);
-      } catch (Exception e) {
-        logDBProvider.closeConnection();
-      }
+  private static void logFile(String messageText) {
+    String filePath = String.format("%s/logFile.txt", this.dbParams.get("logFileFolder");
+    File logFile = new File(filePath);
+    FileHandler fh = new FileHandler(filePath);
+    if (!logFile.exists()) {
+      logFile.createNewFile();
+    }
+    this.logger.addHandler(fh);
+    this.logger.log(Level.INFO, messageText);
+  }
+
+  private static void logConsole(String messageText) {
+    ConsoleHandler ch = new ConsoleHandler();
+    this.logger.addHandler(ch);
+    this.logger.log(Level.INFO, messageText);
+  }
+
+  private static void logDB(String logMsg, int logType) {
+    LogDBProvider logDBProvider = new LogDBProvider(dbParamsMap);
+
+    try {
+      logDBProvider.getConnection();
+      logDBProvider.insertLog(logMsg, logType);
+    } catch (Exception e) {
+      logDBProvider.closeConnection();
     }
   }
 }
