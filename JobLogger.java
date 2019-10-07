@@ -69,7 +69,7 @@ public class JobLogger {
     }
   }
 
-  public JobLogger(Logger logger, boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
+  private JobLogger(Logger logger, boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
       boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
     this.logger = logger;
     this.logError = logErrorParam;
@@ -86,7 +86,7 @@ public class JobLogger {
     }
   }
 
-  public static void LogMessage(String messageText, boolean message, boolean warning, boolean error) throws Exception {
+  private static void logMessage(String messageText, boolean message, boolean warning, boolean error) throws Exception {
 
     if (messageText == null || messageText.trim().isEmpty()) {
       return;
@@ -97,7 +97,8 @@ public class JobLogger {
     }
 
     int logType = 0;
-    String logMsg = ''
+    String logMsg = '';
+    messageText = messageText.trim();
     String baseMsg = String.format("%s %s", DateFormat.getDateInstance(DateFormat.LONG).format(new Date()), messageText);
 
     if (message && this.logMessage) {
@@ -154,5 +155,17 @@ public class JobLogger {
     } catch (Exception e) {
       logDBProvider.closeConnection();
     }
+  }
+
+  public logMessage(String msg) {
+    this.logMessage(msg, true, false, false);
+  }
+
+  public logWarning(String msg) {
+    this.logMessage(msg, false, true, false);
+  }
+
+  public logError(String msg) {
+    this.logMessage(msg, false, false, true);
   }
 }
