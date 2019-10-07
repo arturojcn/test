@@ -1,11 +1,7 @@
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -75,14 +71,14 @@ public class JobLogger {
 
   public JobLogger(Logger logger, boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
       boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
-    logger = logger;
-    logError = logErrorParam;
-    logMessage = logMessageParam;
-    logWarning = logWarningParam;
-    logToDatabase = logToDatabaseParam;
-    logToFile = logToFileParam;
-    logToConsole = logToConsoleParam;
-    dbParams = dbParamsMap;
+    this.logger = logger;
+    this.logError = logErrorParam;
+    this.logMessage = logMessageParam;
+    this.logWarning = logWarningParam;
+    this.logToDatabase = logToDatabaseParam;
+    this.logToFile = logToFileParam;
+    this.logToConsole = logToConsoleParam;
+    this.dbParams = dbParamsMap;
 
     if (!this.logToConsole && !this.logToFile && !this.logToDatabase ||
             !this.logError && !this.logMessage && !this.logWarning) {
@@ -119,21 +115,12 @@ public class JobLogger {
       logMsg = String.format("%s warning %s", logMsg, baseMsg);
     }
 
-    Connection connection = null;
-    Properties connectionProps = new Properties();
-    connectionProps.put("user", dbParams.get("userName"));
-    connectionProps.put("password", dbParams.get("password"));
-
-    connection = DriverManager.getConnection(
-        "jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName") + ":" + dbParams.get("portNumber") + "/",
-        connectionProps);
-
-    File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
+    File logFile = new File(this.dbParams.get("logFileFolder") + "/logFile.txt");
     if (!logFile.exists()) {
       logFile.createNewFile();
     }
 
-    FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+    FileHandler fh = new FileHandler(this.dbParams.get("logFileFolder") + "/logFile.txt");
     ConsoleHandler ch = new ConsoleHandler();
 
     if (logToFile) {
@@ -147,7 +134,14 @@ public class JobLogger {
     }
 
     if (logToDatabase) {
-      stmt.executeUpdate("insert into Log_Values('" + logMsg + "', " + String.valueOf(logType) + ")");
+      LogDBProvider logDBProvider = new LogDBProvider(dbParamsMap);
+
+      try {
+        logDBProvider.getConnection();
+        logDBProvider.insertLog(logMsg, logType);
+      } catch (Exception e) {
+        logDBProvider.closeConnection();
+      }
     }
   }
 }
